@@ -89,7 +89,16 @@ output_dir=$(realpath "${output_dir}")
 rm -rf "${output_dir}"
 mkdir "${output_dir}"
 
-# Build the different boot priority flavours
-for variant in sd usb network; do
-   gen_release "${config_dir}/boot-conf-${variant}.txt" "${output_dir}/${output_basename}-${tag}-${variant}.zip"
+# Loop through all boot-conf-*.txt files in the config_dir directory
+for config_file in "${config_dir}"/boot-conf-*.txt; do
+   # Check if there are any matching files
+   if [ -f "$config_file" ]; then
+      # Extract the variant part from the file name
+      variant=$(basename "$config_file" .txt | sed 's/boot-conf-//')
+      echo "Generating ${output_basename}-${tag}-${variant}.zip"
+      gen_release "$config_file" "${output_dir}/${output_basename}-${tag}-${variant}.zip"
+   else
+      echo "No config files found in ${config_dir}, skipping..."
+      break
+   fi
 done
